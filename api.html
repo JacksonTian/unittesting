@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>unittesting Documentation</title>
+    <meta name="keywords" content="unit,testing,mocha,should" />
+    <meta name="description" content="ERROR: No README.md file found!" />
+    <script src="assets/prettify.js"></script>
+    <script src="assets/jquery-1.8.2.min.js"></script>
+    <script src="bootstrap/js/bootstrap.js"></script>
+    <link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap-responsive.min.css" />
+    <link rel="stylesheet" type="text/css" href="assets/base.css" />
+  </head>
+  <body>
+    <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="brand" href="./index.html">unittesting</a>
+          <div class="nav-collapse collapse">
+            <ul class="nav">
+            
+              <li>
+                <a href="./api.html">API Docs</a>
+              </li>
+            
+            
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    <header class="jumbotron subhead">
+      <div class="container">
+        <h1>unittesting <small>Version: 0.0.1 By @Jackson Tian</small></h1>
+        <p class="lead">
+          ERROR: No README.md file found!
+        </p>
+      </div>
+    </header>
+<div class="container content">
+  <div class="row">
+    <div class="span3 bs-docs-sidebar">
+      <ul class="nav nav-list bs-docs-sidenav affix">
+
+  <li>
+    <a href="#api_index"><i class="icon-chevron-right"></i>index</a>
+  </li>
+
+</ul>
+
+    </div>
+    <div class="span9">
+      
+        <section id="api_index" class="api">
+  <h2>index: API索引</h2>
+  <ul class="indexs">
+  
+    <li>
+      <a href="#_fs">fs</a>
+    </li>
+
+  </ul>
+  <hr />
+
+  
+  <h3 id="_fs">
+    fs
+  </h3>
+  
+
+  
+
+  <table class="table">
+  
+    <tr>
+      <td>声明</td>
+      <td>fs</td> 
+      <td></td>
+      <td>fs</td>
+    </tr>
+  
+
+  
+    <tr>
+      <td>代码</td><td colspan="3"><pre><code>var fs = require('fs');
+
+exports.limit = function (num) {
+  if (num &lt; 0) {
+    return 0;
+  }
+  return num;
+};
+
+
+var limit = function (num) {
+  return num &lt; 0 ? 0 : num;
+};
+
+exports.limit2 = function (num) {
+  return limit(num);
+};
+
+exports.async = function (callback) {
+  setTimeout(function () {
+    callback(10);
+  }, 10);
+};
+
+exports.asyncTimeout = function (callback) {
+  setTimeout(function () {
+    callback(10);
+  }, 6000);
+};
+
+exports.parseAsync = function (input, callback) {
+  setTimeout(function () {
+    var result;
+    try {
+      result = JSON.parse(input);
+    } catch (e) {
+      return callback(e);
+    }
+    callback(null, result);
+  }, 10);
+};
+
+exports.getContent = function (filename, callback) {
+  fs.readFile(filename, 'utf-8', callback);
+};</code></pre></td>
+    </tr>
+  
+  </table>
+  
+</section>
+      
+    </div>
+  </div>
+</div>
+      <footer class="footer">
+        <div class="container">
+          <p class="pull-right">
+            <a href="#">Back to top</a>
+          </p>
+          <p>此文档通过doxmate生成。主题借鉴Bootstrap API文档风格，注解基于<a href="https://github.com/visionmedia/dox">Dox</a>。欢迎关注doxmate作者<a href="http://weibo.com/shyvo" target="_blank">@朴灵</a></p>
+          <ul class="footer-links">
+            <li><a href="https://github.com/visionmedia/dox">Dox主页</a></li>
+            <li><a href="http://html5ify.com/doxmate">Doxmate主页</a></li>
+            <li><a href="https://github.com/JacksonTian/doxmate/issues?state=open">提交bug</a></li>
+          </ul>
+      </div>
+    </footer>
+    <script>
+      $(function() {
+        $('pre').addClass('prettyprint');
+        $('td pre').removeClass('prettyprint');
+        prettyPrint();
+        var $window = $(window);
+        $('.bs-docs-sidenav').affix({
+          offset: {
+            top: function () {
+              return $window.width() <= 980 ? 290 : 210
+            },
+            bottom: 270
+          }
+        });
+        $(".content").find('h1, h2, h3, h4, h5, h6').each(function () {
+          var node = $(this);
+          if (!node.attr("id")) {
+            node.attr("id", "index_" + node.text());
+          }
+          node.css("paddingTop", 40);
+        });
+      });
+    </script>
+  
+  </body>
+</html>
