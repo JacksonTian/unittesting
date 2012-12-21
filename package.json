@@ -1,7 +1,7 @@
 {
   "name": "unittesting",
   "version": "0.0.1",
-  "description": "ERROR: No README.md file found!",
+  "description": "单元测试示例项目",
   "main": "index.js",
   "directories": {
     "test": "test"
