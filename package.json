@@ -1,0 +1,36 @@
+{
+  "name": "unittesting",
+  "version": "0.0.1",
+  "description": "ERROR: No README.md file found!",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha -R spec -t 10000"
+  },
+  "devDependencies": {
+    "mocha": "*",
+    "should": "*",
+    "muk": "*",
+    "rewire": "*"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/JacksonTian/unittesting.git"
+  },
+  "author": "Jackson Tian",
+  "license": "MIT",
+  "dependencies": {
+    "jscover": "~0.2.1",
+    "muk": "~0.2.0",
+    "rewire": "~1.0.3",
+    "should": "~1.2.1"
+  },
+  "keywords": [
+    "unit",
+    "testing",
+    "mocha",
+    "should"
+  ]
+}
