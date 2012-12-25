@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Node.js Unit Testing</title>
+    <meta name="description" content="">
+    <meta name="author" content="Hakim El Hattab">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+    <link rel="stylesheet" href="reveal.js/css/reveal.css">
+    <link rel="stylesheet" href="reveal.js/css/theme/default.css" id="theme">
+
+    <!-- For syntax highlighting -->
+    <link rel="stylesheet" href="reveal.js/lib/css/zenburn.css">
+
+    <!-- If the query includes 'print-pdf', use the PDF print sheet -->
+    <script>
+      document.write( '<link rel="stylesheet" href="reveal.js/css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );
+    </script>
+  </head>
+
+  <body>
+
+    <div class="reveal">
+
+      <!-- Any section element inside of this container is displayed as a slide -->
+      <div class="slides">
+      
+        <section class="cover">
+          <h1>Node.js Unit Testing</h1>
+<h3>by @朴灵</h3>
+
+        </section>
+      
+        <section class="">
+          <h2>Agenda</h2>
+<ul>
+<li>什么是单元测试？</li>
+<li>测试框架</li>
+<li>断言库</li>
+<li>测试用例</li>
+<li>覆盖率</li>
+<li>Mock</li>
+<li>私有方法测试</li>
+<li>持续集成</li>
+</ul>
+
+        </section>
+      
+        <section class="">
+          <h2>讲什么不讲什么</h2>
+<ul>
+<li>讲单元测试过程中的关键点和关键流程</li>
+<li>不讲单元测试过程中的过小的细节</li>
+</ul>
+
+        </section>
+      
+        <section class="">
+          <h2>什么是单元测试</h2>
+<p><code>demo.js</code> by @代码诗人芋头
+
+</p>
+<pre><code>var dp = require(&quot;../lib/index.js&quot;);
+dp.process(process.cwd().replace(/demo$/,&quot;&quot;), {
+  blackList:[
+  // &quot;*demo.js&quot;
+  ]
+}, function (error,result) {
+  if(error){
+    //code=1 是致命错误，code=2 是请求错误，不致命。
+  }else{
+    console.log(result); 
+  }
+});</code></pre>
+
+        </section>
+      
+        <section class="">
+          <h2>单元测试的认知误区</h2>
+<ul>
+<li>单元测试是QA妹纸的事情</li>
+<li>示例代码不是单元测试？</li>
+<li>自己测试自己的代码意义何在？</li>
+<li>版本更新迭代维护单元测试的成本很高？</li>
+<li>我这么牛逼，我就是不写单元测试，你咬我丫</li>
+</ul>
+
+        </section>
+      
+        <section class="">
+          <h2>今天之任务</h2>
+<p>编写一个稳定可靠的模块
+
+</p>
+<ol>
+<li>模块具备limit方法，输入一个数值，小于0的时候返回0，其余正常返回</li>
+</ol>
+<pre><code>exports.limit = function (num) {
+  if (num &lt; 0) {
+    return 0;
+  }
+  return num;
+};</code></pre>
+
+        </section>
+      
+        <section class="">
+          <h2>目录分配</h2>
+<ul>
+<li><code>lib</code>，存放模块代码的地方</li>
+<li><code>test</code>，存放单元测试代码的地方</li>
+<li><code>index.js</code>，向外导出模块的地方</li>
+<li><code>package.json</code>，包描述文件</li>
+</ul>
+
+        </section>
+      
+        <section class="">
+          <h2>测试框架</h2>
+<p>测试框架
+
+</p>
+<ul>
+<li>Mocha。<code>npm install mocha -g</code></li>
+</ul>
+<p>开发依赖/devDependencies
+
+</p>
+<p>&quot;devDependencies&quot;: {
+  &quot;mocha&quot;: &quot;*&quot;
+}
+
+</p>
+
+        </section>
+      
+        <section class="">
+          <h2>测试接口</h2>
+<ul>
+<li>BDD/行为驱动开发</li>
+<li>TDD/测试驱动开发</li>
+</ul>
+<p>我们选择BDD，更贴近于思考方式
+
+</p>
+
+        </section>
+      
+        <section class="">
+          <h2>BDD</h2>
+<ul>
+<li><code>describe()</code></li>
+<li><code>it()</code></li>
+</ul>
+<pre><code>describe(&#39;module&#39;, function () {
+  describe(&#39;limit&#39;, function () {
+    it(&#39;limit should success&#39;, function () {
+      lib.limit(10);
+    });
+  });
+});</code></pre>
+
+        </section>
+      
+        <section class="">
+          <h2>BDD结果</h2>
+<p>在当前目录下执行<code>mocha</code>：
+
+</p>
+<pre><code>test_lib jacksontian $ mocha
+
+  ․
+
+  ✔ 1 test complete (2ms)</code></pre>
+
+        </section>
+      
+        <section class="">
+          <h2>BDD Hook</h2>
+<ul>
+<li><code>before()</code></li>
+<li><code>after()</code></li>
+</ul>
+<pre><code>describe(&#39;module&#39;, function () {
+  before(function () {
+    console.log(&#39;Pre something&#39;);
+  });
+  describe(&#39;limit&#39;, function () {
+    it(&#39;limit should success&#39;, function () {
+      lib.limit(10);
+    });
+  });
+  after(function () {
+    console.log(&#39;Post something&#39;);
+  });
+});</code></pre>
+
+        </section>
+      
+        <section class="">
+          <h2>BDD Hook（2）</h2>
+<ul>
+<li><code>beforeEach()</code></li>
+<li><code>afterEach()</code></li>
+</ul>
+<pre><code>describe(&#39;module&#39;, function () {
+  beforeEach(function () {
+    console.log(&#39;Pre something&#39;);
+  });
+  describe(&#39;limit&#39;, function () {
+    it(&#39;limit should success&#39;, function () {
+      lib.limit(10);
+    });
+  });
+  afterEach(function () {
+    console.log(&#39;Post something&#39;);
+  });
+});</code></pre>
+
+        </section>
+      
+        <section class="">
+          <h2>TDD</h2>
+<ul>
+<li><code>suite</code></li>
+<li><code>test</code></li>
+</ul>
+<pre><code>suite(&#39;module&#39;, function() {
+  suite(&#39;limit&#39;, function() {
+    test(&#39;limit should success&#39;, function () {
+      lib.limit(10);
+    });
+  });
+});</code></pre>
+
+        </section>
+      
+        <section class="">
+          <h2>TDD Hook</h2>
+<ul>
+<li><code>setup</code></li>
+<li><code>teardown</code></li>
+</ul>
+<pre><code>suite(&#39;module&#39;, function() {
+  setup(function () {
+    console.log(&#39;Pre something&#39;);
+  });
+  suite(&#39;limit&#39;, function() {
+    test(&#39;limit should success&#39;, function () {
+      lib.limit(10);
+    });
+  });
+  teardown(function () {
+    console.log(&#39;Post something&#39;);
+  });
+});</code></pre>
+
+        </section>
+      
+        <section class="">
+          <h2>断言库</h2>
+<p>等等！我们还没检查结果呢，这算什么鸟测试呢，测试你妹啊。
+
+</p>
+<p>断言库:
+
+</p>
+<ul>
+<li>should.js</li>
+<li>expect.js</li>
+<li>chai</li>
+</ul>
+
+        </section>
+      
+        <section class="">
+          <h2>加上断言</h2>
+<pre><code>test(&#39;limit should success&#39;, function () {
+  lib.limit(10).should.be.equal(10);
+});</code></pre>
+
+        </section>
+      
+        <section class="">
+          <h2>结果输出</h2>
+<pre><code>test_lib jacksontian $ mocha --reporters
+
+    dot - dot matrix
+    doc - html documentation
+    spec - hierarchical spec list
+    json - single json object
+    progress - progress bar
+    list - spec-style listing
+    tap - test-anything-protocol
+    landing - unicode landing strip
+    xunit - xunit reportert
+    teamcity - teamcity ci support
+    html-cov - HTML test coverage
+    json-cov - JSON test coverage
+    min - minimal reporter (great with --watch)
+    json-stream - newline delimited json events
+    markdown - markdown documentation (github flavour)
+    nyan - nyan cat!</code></pre>
+<pre><code>mocha -R spec
+mocha -R nyan</code></pre>
+
+        </section>
+      
+        <section class="">
+          <h2>测试用例</h2>
+<p>需求变更啦：
+<code>limit</code>这个方法还要求返回值大于100时返回100。
+
+</p>
+<p>正向测试/反向测试
+
+</p>
+
+        </section>
+      
+        <section class="">
+          <h2>重构代码</h2>
+<pre><code>exports.limit = function (num) {
+  return num &lt; 0 ? 0 : num;
+};</code></pre>
+
+        </section>
+      
+        <section class="">
+          <h2>测试用例的价值</h2>
+<p>问题？
+
+</p>
+<ul>
+<li>如何确保你的改动对原有成果没有造成破坏？</li>
+<li>如何验证本次的需求是被满足的？</li>
+</ul>
+
+        </section>
+      
+        <section class="">
+          <h2>异步怎么测试？</h2>
+<p>如何测试？
+
+</p>
+<pre><code>exports.async = function (callback) {
+  setTimeout(function () {
+    callback(10);
+  }, 10);
+};</code></pre>
+
+        </section>
+      
+        <section class="">
+          <h2>测试异步代码</h2>
+<pre><code>describe(&#39;async&#39;, function () {
+  it(&#39;async&#39;, function (done) {
+    lib.async(function (result) {
+      done();
+    });
+  });
+});</code></pre>
+
+        </section>
+      
+        <section class="">
+          <h2>异步方法的超时支持</h2>
+<pre><code>exports.asyncTimeout = function (callback) {
+  setTimeout(function () {
+    callback(10);
+  }, 6000);
+};</code></pre>
+<pre><code>mocha -t 10000</code></pre>
+
+        </section>
+      
+        <section class="">
+          <h2>异步方法的异常处理</h2>
+<pre><code>exports.parseAsync = function (input, callback) {
+  setTimeout(function () {
+    var result;
+    try {
+      result = JSON.parse(input);
+    } catch (e) {
+      return callback(e);
+    }
+    callback(null, result);
+  }, 10);
+};</code></pre>
+
+        </section>
+      
+        <section class="">
+          <h2>你的Case覆盖完全吗？</h2>
+<p>单元测试重要指标：
+
+</p>
+<ul>
+<li>覆盖率</li>
+</ul>
+<p>模块：
+
+</p>
+<ul>
+<li><code>npm install jscover</code></li>
+</ul>
+
+        </section>
+      
+        <section class="">
+          <h2>生成可被追踪的代码</h2>
+<pre><code>./node_modules/.bin/jscover lib lib-cov</code></pre>
+<pre><code>_$jscoverage[&#39;index.js&#39;].source = [&quot;exports.limit = function (input) {&quot;,&quot;  return input &amp;lt; 0 ? 0 : input;&quot;,&quot;};&quot;];
+_$jscoverage[&#39;index.js&#39;][1]++;
+exports.limit = function(input) {
+  _$jscoverage[&#39;index.js&#39;][2]++;
+  return input &lt; 0 ? 0 : input;
+};</code></pre>
+
+        </section>
+      
+        <section class="">
+          <h2>测试时引入追踪代码</h2>
+<pre><code>module.exports = process.env.LIB_COV ? require(&#39;./lib-cov/index&#39;) : require(&#39;./lib/index&#39;);</code></pre>
+<p>备注，每个模块应该用自己的环境变量，以防止冲突
+
+</p>
+
+        </section>
+      
+        <section class="">
+          <h2>生成HTML覆盖率结果页</h2>
+<pre><code>// 设置当前命令行有效的变量
+export LIB_COV=1
+mocha -R html-cov &gt; coverage.html</code></pre>
+
+        </section>
+      
+        <section class="">
+          <h2>Mock</h2>
+<p>异常该怎么测试？
+
+</p>
+<pre><code>exports.getContent = function (filename, callback) {
+  fs.readFile(filename, &#39;utf-8&#39;, callback);
+};</code></pre>
+
+        </section>
+      
+        <section class="">
+          <h2>简单mock</h2>
+<p>hook派上用场了
+
+</p>
+<pre><code>describe(&quot;getContent&quot;, function () {
+  var _readFile;
+  before(function () {
+    _readFile = fs.readFile;
+    fs.readFile = function (filename, encoding, callback) {
+      callback(new Error(&quot;mock readFile error&quot;));
+    };
+  });
+  // it();
+  after(function () {
+    // 用完之后记得还原。否则影响其他case
+    fs.readFile = _readFile;
+  })
+});</code></pre>
+
+        </section>
+      
+        <section class="">
+          <h2>谨慎mock</h2>
+<p>异步接口依旧需要保持异步
+
+</p>
+<pre><code>fs.readFile = function (filename, encoding, callback) {
+  process.nextTick(function () {
+    callback(new Error(&quot;mock readFile error&quot;));
+  });
+};</code></pre>
+
+        </section>
+      
+        <section class="">
+          <h2>Mock库</h2>
+<p>Mock小模块：<code>muk</code>
+
+</p>
+<pre><code>var fs = require(&#39;fs&#39;);
+var muk = require(&#39;muk&#39;);
+
+muk(fs, &#39;readFile&#39;, function(path, callback) {
+  process.nextTick(function () {
+    callback(new Error(&quot;mock readFile error&quot;));
+  });
+});</code></pre>
+
+        </section>
+      
+        <section class="">
+          <h2>略微优美</h2>
+<pre><code>before(function () {
+  muk(fs, &#39;readFile&#39;, function(path, encoding, callback) {
+    process.nextTick(function () {
+      callback(new Error(&quot;mock readFile error&quot;));
+    });
+  });
+});
+// it();
+after(function () {
+  muk.restore();
+});</code></pre>
+
+        </section>
+      
+        <section class="">
+          <h2>测试私有方法</h2>
+<p>模块：<a href="http://jhnns.github.com/rewire/"><code>rewire</code></a>
+
+</p>
+<p>今天老板说，limit方法不能再对外暴露了。如何测试它？
+
+</p>
+
+        </section>
+      
+        <section class="">
+          <h2>通过rewire导出方法</h2>
+<pre><code>it(&#39;limit should return success&#39;, function () {
+  var lib = rewire(&#39;../lib/index.js&#39;);
+  var litmit = lib.__get__(&#39;limit&#39;);
+  litmit(10);
+});</code></pre>
+
+        </section>
+      
+        <section class="">
+          <h2>rewire原理</h2>
+<p>【闭包原理】加载文件时注入<code>__set__</code>和<code>__get__</code>方法。该方法可以访问内部变量。
+
+</p>
+<pre><code>(function (exports, require, module, __filename, __dirname) {
+  var method = function () {};
+  exports.__set__ = function (name, value) {
+    eval(name &quot; = &quot; value.toString());
+  };
+  exports.__get__ = function (name) {
+    return eval(name);
+  };
+});</code></pre>
+
+        </section>
+      
+        <section class="">
+          <h2>用Makefile串起项目</h2>
+<pre><code>TESTS = test/*.test.js
+REPORTER = spec
+TIMEOUT = 10000
+JSCOVERAGE = ./node_modules/jscover/bin/jscover
+
+test:
+    @NODE_ENV=test ./node_modules/mocha/bin/mocha -R $(REPORTER) -t $(TIMEOUT) $(TESTS)
+
+test-cov: lib-cov
+    @LIB_COV=1 $(MAKE) test REPORTER=dot
+    @LIB_COV=1 $(MAKE) test REPORTER=html-cov &gt; coverage.html
+
+lib-cov:
+    @rm -rf ./lib-cov
+    @$(JSCOVERAGE) lib lib-cov
+
+.PHONY: test test-cov lib-cov</code></pre>
+<pre><code>make test
+make test-cov</code></pre>
+<p>用项目自身的jscover和mocha，避免版本冲突和混乱
+
+</p>
+
+        </section>
+      
+        <section class="">
+          <h2>不持续集成不舒服</h2>
+<ul>
+<li><a href="https://travis-ci.org/">Travis-ci</a><ul>
+<li>绑定Github帐号</li>
+<li>在Github仓库的Admin打开Services hook</li>
+<li>打开Travis</li>
+<li>每次push将会hook触发执行<code>npm test</code>命令</li>
+</ul>
+</li>
+</ul>
+
+        </section>
+      
+        <section class="">
+          <h2>不持续集成不舒服2</h2>
+<p>注意：Travis会将未描述的项目当作Ruby项目。所以需要在根目录下加入<code>.travis.yml</code>文件。内容如下：
+
+</p>
+<pre><code>language: node_js
+node_js:
+  - 0.6
+  - 0.8</code></pre>
+<p><img src="https://secure.travis-ci.org/JacksonTian/bagpipe.png" alt="">
+or <img src="https://secure.travis-ci.org/TBEDP/datavjs.png" alt="">
+
+</p>
+
+        </section>
+      
+        <section class="">
+          <h2>总结</h2>
+<ul>
+<li>使代码可以放心修改和重构</li>
+<li>食自己的狗食</li>
+<li>只有质量保证的代码才能有质量保证的产品</li>
+<li>写好代码和测试，把查找bug的时间用来干更有意义的事情</li>
+<li>单元测试Passing和覆盖率100%是一种荣耀</li>
+<li>有单元测试的代码，再差也不会差到哪里去<ul>
+<li>没单元测试，吹牛逼也要小心</li>
+</ul>
+</li>
+<li>集成的，好喝的</li>
+</ul>
+
+        </section>
+      
+        <section class="">
+          <h2>TODO</h2>
+<ul>
+<li>前后端共用单元测试</li>
+<li>断言的细节和技巧</li>
+<li>Mocha的更多技巧</li>
+<li>connect/express web应用的测试<ul>
+<li><code>supertest</code></li>
+</ul>
+</li>
+<li>性能测试/功能测试</li>
+</ul>
+
+        </section>
+      
+        <section class="">
+          <h2>QA &amp;&amp; Thanks</h2>
+
+        </section>
+      
+        <section class="">
+          <h2>More</h2>
+<ul>
+<li><a href="https://github.com/JacksonTian/unittesting">单元测试示例项目</a></li>
+<li><a href="fengmk2.github.com/ppt/unittest-and-bdd-in-nodejs-with-mocha.html">单元测试实战</a> 内容与本PPT有互补</li>
+<li>Mocha/Should/Chai/Except/Assert</li>
+<li>rewire/pedding/supertest/muk</li>
+</ul>
+
+        </section>
+      
+      </div>
+    </div>
+
+    <script src="reveal.js/lib/js/head.min.js"></script>
+    <script src="reveal.js/js/reveal.min.js"></script>
+
+    <script>
+      // Full list of configuration options available here:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+            keyboard: true,
+            rollingLinks: true,
+        theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+        transition: Reveal.getQueryHash().transition || 'zoom', // default/cube/page/concave/zoom/linear/none
+
+        // Optional libraries used to extend on reveal.js
+        dependencies: [
+          { src: 'reveal.js/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+          { src: 'reveal.js/plugin/markdown/showdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+          { src: 'reveal.js/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+          { src: 'reveal.js/plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+          { src: 'reveal.js/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+          { src: 'reveal.js/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+        ]
+      });
+    </script>
+  </body>
+</html>
